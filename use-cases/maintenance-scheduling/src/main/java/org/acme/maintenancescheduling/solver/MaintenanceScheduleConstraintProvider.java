@@ -44,6 +44,7 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
                 sunday(constraintFactory),
                 oneTeamCanAtMostDo1ShiftCInA2MonthPeriod(constraintFactory),
                 oneTeamWedDayOffWillNotReoccurLessThan4Week(constraintFactory),
+                oneTeamFridayDayOffWillNotReoccurLessThan4Week(constraintFactory),
 
                 readyDate(constraintFactory),
                 dueDate(constraintFactory),
@@ -170,6 +171,16 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
             && Math.abs(x.getWeekNo() - y.getWeekNo()) < 4 )
             .penalize(HardSoftLongScore.ofSoft(1100000))
             .asConstraint("oneTeamWedDayOffWillNotReoccurLessThan4Week");
+    }
+
+    public Constraint oneTeamFridayDayOffWillNotReoccurLessThan4Week(ConstraintFactory constraintFactory) {
+        var FridayDayOffJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off");
+        return constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off").join(FridayDayOffJobs)
+            .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
+            && x.getWeekNo() != y.getWeekNo()
+            && Math.abs(x.getWeekNo() - y.getWeekNo()) < 4 )
+            .penalize(HardSoftLongScore.ofSoft(1100000))
+            .asConstraint("oneTeamFridayDayOffWillNotReoccurLessThan4Week");
     }
 
     public Constraint saturday(ConstraintFactory constraintFactory) {

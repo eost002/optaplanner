@@ -38,13 +38,20 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
                 evenWeekTeamInRespectiveShiftA(constraintFactory),
                 evenWeekTeamInRespectiveShiftB(constraintFactory),
                 
-                wednesday(constraintFactory),
-                friday(constraintFactory),
-                saturday(constraintFactory),
-                sunday(constraintFactory),
-                oneTeamCanAtMostDo1ShiftCInA2MonthPeriod(constraintFactory),
-                oneTeamWedDayOffWillNotReoccurLessThan4Week(constraintFactory),
-                oneTeamFridayDayOffWillNotReoccurLessThan4Week(constraintFactory),
+                wednesday1(constraintFactory),
+                wednesday2(constraintFactory),
+                friday1(constraintFactory),
+                friday2(constraintFactory),
+                saturday1(constraintFactory),
+                saturday2(constraintFactory),
+                sunday1(constraintFactory),
+                sunday2(constraintFactory),
+                shiftC1(constraintFactory),
+                shiftC2(constraintFactory),
+                wedDayOff1(constraintFactory),
+                wedDayOff2(constraintFactory),
+                fridayDayOff1(constraintFactory),
+                fridayDayOff2(constraintFactory),
 
                 readyDate(constraintFactory),
                 dueDate(constraintFactory),
@@ -131,17 +138,27 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
                 .asConstraint("ew Wrong Team A");
     }
 
-    public Constraint wednesday(ConstraintFactory constraintFactory) {
+    public Constraint wednesday1(ConstraintFactory constraintFactory) {
         var wednesdayJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.WEDNESDAY && j.getName() == "Shift A");
 
         return constraintFactory.forEach(Job.class)
             .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.TUESDAY && j.getName() == "Shift B")
             .join(wednesdayJobs, equal(Job::getWeekNo), equal(Job::getCrew))
-            .penalize(HardSoftLongScore.ofSoft(1000000))
-            .asConstraint("wednesday");
+            .penalize(HardSoftLongScore.ONE_HARD)
+            .asConstraint("wednesday1");
     }
 
-    public Constraint friday(ConstraintFactory constraintFactory) {
+    public Constraint wednesday2(ConstraintFactory constraintFactory) {
+        var wednesdayJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.WEDNESDAY && (j.getName() == "Shift B" || j.getName() == "Day Off"));
+
+        return constraintFactory.forEach(Job.class)
+            .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.TUESDAY && j.getName() == "Shift A")
+            .join(wednesdayJobs, equal(Job::getWeekNo), equal(Job::getCrew))
+            .penalize(HardSoftLongScore.ONE_HARD)
+            .asConstraint("wednesday2");
+    }
+
+    public Constraint friday1(ConstraintFactory constraintFactory) {
         var dayOffAndShiftAJobs = constraintFactory.forEach(Job.class)
             .filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY 
             && (j.getName() == "Shift A" || j.getName() == "Day Off"));
@@ -149,58 +166,121 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
         return constraintFactory.forEach(Job.class)
             .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.THURSDAY && j.getName() == "Shift B")
             .join(dayOffAndShiftAJobs, equal(Job::getWeekNo), equal(Job::getCrew))
-            .penalize(HardSoftLongScore.ofSoft(1000000))
-            .asConstraint("friday");
+            .penalize(HardSoftLongScore.ONE_HARD)
+            .asConstraint("friday1");
     }
 
-    public Constraint oneTeamCanAtMostDo1ShiftCInA2MonthPeriod(ConstraintFactory constraintFactory) {
+    public Constraint friday2(ConstraintFactory constraintFactory) {
+        var dayOffAndShiftAJobs = constraintFactory.forEach(Job.class)
+            .filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY 
+            && (j.getName() == "Shift B" || j.getName() == "Shift C"));
+
+        return constraintFactory.forEach(Job.class)
+            .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.THURSDAY && j.getName() == "Shift A")
+            .join(dayOffAndShiftAJobs, equal(Job::getWeekNo), equal(Job::getCrew))
+            .penalize(HardSoftLongScore.ONE_HARD)
+            .asConstraint("friday2");
+    }
+
+    public Constraint shiftC1(ConstraintFactory constraintFactory) {
         var shiftCJobs = constraintFactory.forEach(Job.class).filter(j -> j.getName() == "Shift C");
         return constraintFactory.forEach(Job.class).filter(j -> j.getName() == "Shift C").join(shiftCJobs)
             .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
             && x.getWeekNo() != y.getWeekNo()
             && Math.abs(x.getWeekNo() - y.getWeekNo()) < 8 )
-            .penalize(HardSoftLongScore.ofSoft(1100000))
-            .asConstraint("oneTeamCanAtMostDo1ShiftCInA2MonthPeriod");
+            .penalizeLong(HardSoftLongScore.ofSoft(1100000), (x, y) -> (8 - (Math.abs(x.getWeekNo() - y.getWeekNo()))))
+            .asConstraint("shiftC1");
     }
 
-    public Constraint oneTeamWedDayOffWillNotReoccurLessThan4Week(ConstraintFactory constraintFactory) {
+    public Constraint shiftC2(ConstraintFactory constraintFactory) {
+        var shiftCJobs = constraintFactory.forEach(Job.class).filter(j -> j.getName() == "Shift C");
+        return constraintFactory.forEach(Job.class).filter(j -> j.getName() == "Shift C").join(shiftCJobs)
+            .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
+            && x.getWeekNo() != y.getWeekNo()
+            && Math.abs(x.getWeekNo() - y.getWeekNo()) > 8 )
+            .penalizeLong(HardSoftLongScore.ofSoft(1100000), (x, y) -> ((Math.abs(x.getWeekNo() - y.getWeekNo())) - 8))
+            .asConstraint("shiftC2");
+    }
+
+    public Constraint wedDayOff1(ConstraintFactory constraintFactory) {
         var WedDayOffJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.WEDNESDAY && j.getName() == "Day Off");
         return constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.WEDNESDAY && j.getName() == "Day Off").join(WedDayOffJobs)
             .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
             && x.getWeekNo() != y.getWeekNo()
             && Math.abs(x.getWeekNo() - y.getWeekNo()) < 4 )
-            .penalize(HardSoftLongScore.ofSoft(1100000))
-            .asConstraint("oneTeamWedDayOffWillNotReoccurLessThan4Week");
+            .penalizeLong(HardSoftLongScore.ofSoft(1100000), (x, y) -> (4 - (Math.abs(x.getWeekNo() - y.getWeekNo()))))
+            .asConstraint("wedDayOff1");
     }
 
-    public Constraint oneTeamFridayDayOffWillNotReoccurLessThan4Week(ConstraintFactory constraintFactory) {
+    public Constraint wedDayOff2(ConstraintFactory constraintFactory) {
+        var WedDayOffJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.WEDNESDAY && j.getName() == "Day Off");
+        return constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.WEDNESDAY && j.getName() == "Day Off").join(WedDayOffJobs)
+            .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
+            && x.getWeekNo() != y.getWeekNo()
+            && Math.abs(x.getWeekNo() - y.getWeekNo()) > 4 )
+            .penalizeLong(HardSoftLongScore.ofSoft(1100000), (x, y) -> ((Math.abs(x.getWeekNo() - y.getWeekNo())) - 4))
+            .asConstraint("wedDayOff2");
+    }
+
+    public Constraint fridayDayOff1(ConstraintFactory constraintFactory) {
         var FridayDayOffJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off");
         return constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off").join(FridayDayOffJobs)
             .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
             && x.getWeekNo() != y.getWeekNo()
             && Math.abs(x.getWeekNo() - y.getWeekNo()) < 4 )
-            .penalize(HardSoftLongScore.ofSoft(1100000))
-            .asConstraint("oneTeamFridayDayOffWillNotReoccurLessThan4Week");
+            .penalizeLong(HardSoftLongScore.ofSoft(1100000), (x, y) -> (4 - (Math.abs(x.getWeekNo() - y.getWeekNo()))))
+            .asConstraint("fridayDayOff1");
     }
 
-    public Constraint saturday(ConstraintFactory constraintFactory) {
+    public Constraint fridayDayOff2(ConstraintFactory constraintFactory) {
+        var FridayDayOffJobs = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off");
+        return constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off").join(FridayDayOffJobs)
+            .filter((x, y) -> x.getCrew().getName() == y.getCrew().getName() 
+            && x.getWeekNo() != y.getWeekNo()
+            && Math.abs(x.getWeekNo() - y.getWeekNo()) > 4 )
+            .penalizeLong(HardSoftLongScore.ofSoft(1100000), (x, y) -> ((Math.abs(x.getWeekNo() - y.getWeekNo())) - 4))
+            .asConstraint("fridayDayOff2");
+    }
+
+    public Constraint saturday1(ConstraintFactory constraintFactory) {
         var saturdayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SATURDAY);
 
         return constraintFactory.forEach(Job.class)
             .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() != "Day Off")
             .join(saturdayJob, equal(Job::getWeekNo), equal(Job::getCrew))
-            .penalize(HardSoftLongScore.ofSoft(900000))
-            .asConstraint("saturday");
+            .penalize(HardSoftLongScore.ONE_HARD)
+            .asConstraint("saturday1");
     }
 
-    public Constraint sunday(ConstraintFactory constraintFactory) {
+    public Constraint saturday2(ConstraintFactory constraintFactory) {
+        var saturdayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SATURDAY);
+
+        return constraintFactory.forEach(Job.class)
+            .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off")
+            .join(saturdayJob, equal(Job::getWeekNo), equal(Job::getCrew))
+            .reward(HardSoftLongScore.ONE_HARD)
+            .asConstraint("saturday2");
+    }
+
+
+    public Constraint sunday1(ConstraintFactory constraintFactory) {
         var sundayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SUNDAY);
 
         return constraintFactory.forEach(Job.class)
             .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() != "Day Off")
             .join(sundayJob, equal(Job::getWeekNo), equal(Job::getCrew))
-            .penalize(HardSoftLongScore.ofSoft(900000))
-            .asConstraint("sunday");
+            .penalize(HardSoftLongScore.ONE_HARD)
+            .asConstraint("sunday1");
+    }
+
+    public Constraint sunday2(ConstraintFactory constraintFactory) {
+        var sundayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SUNDAY);
+
+        return constraintFactory.forEach(Job.class)
+            .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off")
+            .join(sundayJob, equal(Job::getWeekNo), equal(Job::getCrew))
+            .reward(HardSoftLongScore.ONE_HARD)
+            .asConstraint("sunday2");
     }
 
     

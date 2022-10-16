@@ -43,9 +43,7 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
                 friday1(constraintFactory),
                 friday2(constraintFactory),
                 saturday1(constraintFactory),
-                saturday2(constraintFactory),
                 sunday1(constraintFactory),
-                sunday2(constraintFactory),
                 shiftC1(constraintFactory),
                 shiftC2(constraintFactory),
                 wedDayOff1(constraintFactory),
@@ -252,16 +250,6 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
             .asConstraint("saturday1");
     }
 
-    public Constraint saturday2(ConstraintFactory constraintFactory) {
-        var saturdayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SATURDAY);
-
-        return constraintFactory.forEach(Job.class)
-            .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off")
-            .join(saturdayJob, equal(Job::getWeekNo), equal(Job::getCrew))
-            .reward(HardSoftLongScore.ONE_HARD)
-            .asConstraint("saturday2");
-    }
-
 
     public Constraint sunday1(ConstraintFactory constraintFactory) {
         var sundayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SUNDAY);
@@ -273,15 +261,6 @@ public class MaintenanceScheduleConstraintProvider implements ConstraintProvider
             .asConstraint("sunday1");
     }
 
-    public Constraint sunday2(ConstraintFactory constraintFactory) {
-        var sundayJob = constraintFactory.forEach(Job.class).filter(j -> j.getReadyDate().getDayOfWeek() == DayOfWeek.SUNDAY);
-
-        return constraintFactory.forEach(Job.class)
-            .filter(j -> j.getStartDate().getDayOfWeek() == DayOfWeek.FRIDAY && j.getName() == "Day Off")
-            .join(sundayJob, equal(Job::getWeekNo), equal(Job::getCrew))
-            .reward(HardSoftLongScore.ONE_HARD)
-            .asConstraint("sunday2");
-    }
 
     
 

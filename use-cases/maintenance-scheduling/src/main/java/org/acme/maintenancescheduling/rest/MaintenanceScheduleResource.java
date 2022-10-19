@@ -29,7 +29,7 @@ import com.arjuna.ats.internal.jdbc.drivers.modifiers.list;
 import io.micrometer.core.instrument.Tags;
 import io.quarkus.panache.common.Sort;
 
-@Path("/schedule")
+@Path("/optaplanner/api")
 public class MaintenanceScheduleResource {
 
     public static final Long SINGLETON_SCHEDULE_ID = 1L;
@@ -53,6 +53,7 @@ public class MaintenanceScheduleResource {
 
     // To try, open http://localhost:8080/schedule
     @GET
+    @Path("schedule")
     public MaintenanceSchedule getSchedule() {
         // Get the solver status before loading the solution
         // to avoid the race condition that the solver terminates between them

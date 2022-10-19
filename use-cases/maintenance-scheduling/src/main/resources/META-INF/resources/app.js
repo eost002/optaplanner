@@ -69,7 +69,7 @@ $(document).ready(function () {
 });
 
 function refreshSchedule() {
-    $.getJSON("/schedule", function (schedule) {
+    $.getJSON("/optaplanner/api/schedule", function (schedule) {
         refreshSolvingButtons(schedule.solverStatus != null && schedule.solverStatus !== "NOT_SOLVING");
         $("#score").text("Score: " + (schedule.score == null ? "?" : schedule.score));
 
@@ -169,7 +169,7 @@ function refreshSchedule() {
 }
 
 function solve() {
-    $.post("/schedule/solve", function () {
+    $.post("/optaplanner/api/solve", function () {
         refreshSolvingButtons(true);
     }).fail(function (xhr, ajaxOptions, thrownError) {
         showError("Start solving failed.", xhr);
@@ -194,7 +194,7 @@ function refreshSolvingButtons(solving) {
 }
 
 function stopSolving() {
-    $.post("/schedule/stopSolving", function () {
+    $.post("/optaplanner/api/stopSolving", function () {
         refreshSolvingButtons(false);
         refreshSchedule();
     }).fail(function (xhr, ajaxOptions, thrownError) {

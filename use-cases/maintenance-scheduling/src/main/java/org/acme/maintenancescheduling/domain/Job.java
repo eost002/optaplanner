@@ -126,6 +126,10 @@ public class Job {
         this.startDate = startDate;
     }
 
+    public void setTagSet(Set<String> tagSet) {
+        this.tagSet = tagSet;
+    } 
+
     public LocalDate getEndDate() {
         return endDate;
     }

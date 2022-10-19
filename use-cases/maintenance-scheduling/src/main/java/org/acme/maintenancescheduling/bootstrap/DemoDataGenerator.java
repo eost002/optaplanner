@@ -65,7 +65,7 @@ public class DemoDataGenerator {
         crewRepository.persist(crewList);
 
         int jobListSize = 448; // 56 = One week of jobs
-        LocalDate fromDate = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        LocalDate fromDate = LocalDate.now().withMonth(12).withDayOfMonth(29).with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         int weekListSize = (jobListSize / 56) + (jobListSize % 56 > 0 ? 1 : 0);
         LocalDate toDate = fromDate.plusWeeks(weekListSize);
         workCalendarRepository.persist(new WorkCalendar(fromDate, toDate));

@@ -84,6 +84,7 @@ public class DemoDataGenerator {
         for (int i = 0; i < jobListSize; i++) {
             int noOfWeeksCompleted = i / 56;
             int dayOffsetInWeek = (i % 56) / 8; // 0 = Monday
+            int dayNo = i / 8;
             if (i % 56 == 0) {
                 case2Counter = 0;
                 case4Counter = 0;
@@ -101,7 +102,7 @@ public class DemoDataGenerator {
                     LocalDate dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     LocalDate idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     Set<String> tagSet = Set.of(jobArea);
-                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo));
+                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo, dayNo));
                     break;
                 case 2:
                     jobArea = JOB_AREA_NAMES[case2Counter < 4 ? 0 : (case2Counter < 6 ? 1 : 3)];
@@ -110,7 +111,7 @@ public class DemoDataGenerator {
                     dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     tagSet = Set.of(jobArea);
-                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo));
+                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo, dayNo));
                     break;
                 case 4:
                     jobArea = JOB_AREA_NAMES[case4Counter < 3 ? 1 : (case4Counter < 5 ? 0 : (case4Counter < 7 ? 3 : 2))];
@@ -119,7 +120,7 @@ public class DemoDataGenerator {
                     dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     tagSet = Set.of(jobArea);
-                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo));
+                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo, dayNo));
                     break;
                 case 5:
                     if (case5Counter > 1)
@@ -130,7 +131,7 @@ public class DemoDataGenerator {
                     dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     tagSet = Set.of(jobArea);
-                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo));
+                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo, dayNo));
                     break;
                 case 6:
                     if (case6Counter > 1)
@@ -141,7 +142,7 @@ public class DemoDataGenerator {
                     dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     tagSet = Set.of(jobArea);
-                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo));
+                    jobList.add(new Job(jobArea, 1, readyDate, dueDate, idealEndDate, tagSet, weekNo, dayNo));
                     break;
             }
             

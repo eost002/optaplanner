@@ -30,6 +30,7 @@ public class Job {
     private LocalDate dueDate; // Exclusive
     private LocalDate idealEndDate; // Exclusive
     private int weekNo;
+    private int dayNo;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> tagSet;
@@ -48,7 +49,7 @@ public class Job {
     public Job() {
     }
 
-    public Job(String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tagSet, Integer weekNo) {
+    public Job(String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tagSet, Integer weekNo, Integer dayNo) {
         this.name = name;
         this.durationInDays = durationInDays;
         this.readyDate = readyDate;
@@ -56,6 +57,7 @@ public class Job {
         this.idealEndDate = idealEndDate;
         this.tagSet = tagSet;
         this.weekNo = weekNo;
+        this.dayNo = dayNo;
     }
 
     public Job(Long id, String name, int durationInDays, LocalDate readyDate, LocalDate dueDate, LocalDate idealEndDate, Set<String> tagSet,
@@ -140,5 +142,9 @@ public class Job {
 
     public int getWeekNo() {
         return this.weekNo;
+    }
+
+    public int getDayNo() {
+        return this.dayNo;
     }
 }

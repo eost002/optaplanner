@@ -71,7 +71,7 @@ public class DemoDataGenerator {
         workCalendarRepository.persist(new WorkCalendar(fromDate, toDate));
 
         final String[] JOB_AREA_NAMES = {
-                "Shift A", "Shift B", "Shift C", "Day Off", "Weekend Shift"};
+                "Shift A", "Shift B", "Shift C", "Day Off", "WE Sat", "WE Sun"};
         
 
         List<Job> jobList = new ArrayList<>();
@@ -137,7 +137,7 @@ public class DemoDataGenerator {
                     if (case6Counter > 1)
                         break;
                     case6Counter++;
-                    jobArea = JOB_AREA_NAMES[4];
+                    jobArea = JOB_AREA_NAMES[5];
                     readyDate = EndDateUpdatingVariableListener.calculateEndDate(fromDate, dayOffsetFromInitial);
                     dueDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);
                     idealEndDate = EndDateUpdatingVariableListener.calculateEndDate(readyDate, 1);

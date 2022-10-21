@@ -112,47 +112,40 @@ public class MaintenanceScheduleResource {
             attachedJob.setStartDate(job.getStartDate());
             attachedJob.setEndDate(job.getEndDate());
 
-            if (attachedJob.getTagSet().contains("Day Off"))
-                continue;
             var tagSet = attachedJob.getTagSet();
+            tagSet.removeAll(tagSet);
+            if (attachedJob.getName() == "Day Off")
+                continue;
             switch (attachedJob.getCrew().getName()) {
                 case "T1":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(westTC[t1Counter % 4]);
                     t1Counter++;
                     break;
                 case "T2":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(westTC[(t2Counter + 2) % 4]);
                     t2Counter++;
                     break;
                 case "T3":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(centralTC[t3Counter % 4]);
                     t3Counter++;
                     break;
                 case "T4":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(centralTC[(t4Counter + 2) % 4]);
                     t4Counter++;
                     break;
                 case "T5":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(northTC[t5Counter % 4]);
                     t5Counter++;
                     break;
                 case "T6":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(northTC[(t6Counter + 2) % 4]);
                     t6Counter++;
                     break;
                 case "T7":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(eastTC[t7Counter % 5]);
                     t7Counter++;
                     break;
                 case "T8":
-                    tagSet = removeExistingSet(tagSet);
                     tagSet.add(eastTC[(t8Counter + 2) % 5]);
                     t8Counter++;
                     break;
@@ -163,21 +156,5 @@ public class MaintenanceScheduleResource {
         // Comparator<Job> compareCrew = (x, y) -> x.getCrew().getName().compareTo(y.getCrew().getName());
         // Comparator<Job> compareReadyDate = (x, y) -> x.getReadyDate().compareTo(y.getReadyDate());
         // var sortedJogList = jobRepository.listAll().stream().sorted()
-    }
-
-    Set<String> removeExistingSet(Set<String> tagSet) {
-        for (var string : westTC) {
-            tagSet.remove(string);
-        }
-        for (var string : centralTC) {
-            tagSet.remove(string);
-        }
-        for (var string : northTC) {
-            tagSet.remove(string);
-        }
-        for (var string : eastTC) {
-            tagSet.remove(string);
-        }
-        return tagSet;
     }
 }
